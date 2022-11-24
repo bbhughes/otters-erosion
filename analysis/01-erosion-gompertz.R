@@ -2,9 +2,7 @@ library(ggplot2)
 library(dplyr)
 library(mgcv)
 library(here)
-# library(ggsidekick)
 theme_set(theme_light())
-# library(sdmTMB)
 library(rstan)
 rstan_options(auto_write = TRUE)
 library(future)
@@ -22,41 +20,7 @@ names(erosion) <- tolower(names(erosion))
 names(otter) <- tolower(names(otter))
 erosion$X <- NULL
 erosion$Y <- NULL
-# erosion <- sdmTMB::add_utm_columns(erosion,
-#   ll_names = c("long", "lat"),
-#   units = c("m")
-# )
-# erosion$X <- erosion$X / 10
-# erosion$Y <- erosion$Y / 10
 erosion$id <- as.factor(as.character(erosion$id))
-
-# library(ggsidekick)
-# ggplot(erosion, aes(long, lat, colour = erosion_m_y)) +
-#   geom_point() +
-#   coord_equal() +
-#   facet_wrap(~year) +
-#   scale_colour_viridis_c(trans = "fourth_root_power")
-#
-# ggplot(erosion, aes(long, lat, colour = id)) +
-#   geom_point() +
-#   coord_equal() +
-#   facet_wrap(~year)
-#
-# ggplot(erosion, aes(long, lat, colour = section)) +
-#   geom_point() +
-#   coord_equal() +
-#   facet_wrap(~year)
-#
-# ggplot(erosion, aes(year, erosion_m_y)) +
-#   geom_point(position = position_jitter(width = 0.5, height = 0), alpha = 0.5) +
-#   ylim(-1.0, 1.5) +
-#   geom_smooth(
-#     method = "gam", formula = y ~ s(x),
-#     method.args = list(family = gaussian(link = "identity")), colour = "red"
-#   ) +
-#   ylab("Erosion (m per year)") +
-#   xlab("Year") +
-#   coord_cartesian(expand = FALSE, xlim = range(erosion$year) + c(-1, 1))
 
 ggplot(otter, aes(year, sea_otter_no)) +
   geom_point() +
@@ -67,14 +31,11 @@ ggplot(otter, aes(year, sea_otter_no)) +
   ylab("Sea otter abundance") +
   xlab("Year")
 
-otter[YEAR_START, ]
-
 # Explore -----------------------------------------------------------------
 
 # - turn erosion back into width
 # - model rate of growth of width from when it starts
-# - model linear(?) reduction in rate of growth per otter
-# - keep it simple
+# - model reduction in rate of growth per otter
 
 fit_erosion <- gamm(erosion_m_y ~ s(year),
   random = list(id = ~1),
@@ -284,8 +245,8 @@ plot(apply(w, 2, mean))
 
 o <- otter[seq((YEAR_START - 1), nrow(otter) - 1), "sea_otter_no", drop = TRUE]
 o[is.na(o)] <- mean(c(51, 67)) # FIXME integrate over in Stan? TODO NOTE
-# out <- purrr::map(1:nrow(w), function(i) {
-out <- furrr::future_map(1:nrow(w), function(i) {
+out <- purrr::map(1:nrow(w), function(i) {
+# out <- furrr::future_map(1:nrow(w), function(i) {
   stan_dat <- list(
     N = ncol(w),
     width = w[i, ],
@@ -373,7 +334,6 @@ data.frame(b = e$b) %>%
   geom_density()
 
 # ~2.5 % per otter at max initial point
-#
 
 ots <- seq(min(o), max(o), length.out = 200)
 

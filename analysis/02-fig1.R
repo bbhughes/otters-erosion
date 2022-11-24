@@ -2,7 +2,7 @@ library(ggplot2)
 library(dplyr)
 library(mgcv)
 library(here)
-theme_set(ggsidekick::theme_sleek())
+theme_set(ggsidekick::theme_sleek()) # https://github.com/seananderson/ggsidekick
 # theme_set(theme_light())
 
 ribbon_col <- RColorBrewer::brewer.pal(5, "Blues")[5]
@@ -218,8 +218,12 @@ quantile(r - r * (1 - exp(-b * 0)), probs = c(0.05, 0.5, 0.95))
 quantile(r - r * (1 - exp(-b * 100)), probs = c(0.05, 0.5, 0.95))
 
 # true percentage: (exp(x) - 1)
-quantile(exp(r - r * (1 - exp(-b * 0))) - 1, probs = c(0.05, 0.5, 0.95))
-quantile(exp(r - r * (1 - exp(-b * 100))) - 1, probs = c(0.05, 0.5, 0.95))
+round(quantile(exp(r - r * (1 - exp(-b * 0))) - 1, probs = c(0.05, 0.5, 0.95)), 2)
+round(quantile(exp(r - r * (1 - exp(-b * 100))) - 1, probs = c(0.05, 0.5, 0.95)), 2)
+
+round(quantile(exp(r - r * (1 - exp(-b * 0))) - 1, probs = c(0.025, 0.5, 0.975)), 2)
+round(quantile(exp(r - r * (1 - exp(-b * 100))) - 1, probs = c(0.025, 0.5, 0.975)), 2)
+
 
 # fraction reduction in r
 # max(o)
