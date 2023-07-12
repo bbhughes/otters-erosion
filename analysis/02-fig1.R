@@ -138,17 +138,6 @@ g1 <- make_ts_plot(de, erosion,
   point_y = "erosion_m_y", ylab = "Erosion (m/year)"
 )
 
-half_line <- 11 / 2
-g2 <- ggplot(otter, aes(year, y = sea_otter_no)) +
-  geom_ribbon(aes(year, ymin = lwr, ymax = upr), fill = ribbon_col, data = do, inherit.aes = FALSE, alpha = 0.3) +
-  geom_ribbon(aes(year, ymin = lwr2, ymax = upr2), fill = ribbon_col, data = do, inherit.aes = FALSE, alpha = 0.4) +
-  geom_line(aes(year, y = est), colour = ribbon_col, lwd = 0.8, data = do, inherit.aes = FALSE) +
-  geom_point(aes_string(x = "year", y = "sea_otter_no"), data = otter, inherit.aes = FALSE, alpha = 1, pch = 21, fill = "white", colour = "grey30", size = 1.5) +
-  # geom_path() +
-  coord_cartesian(xlim = c(min(erosion$year) - 1, 2020), ylim = c(0, max(otter$sea_otter_no)), expand = FALSE) +
-  ylab("Sea otters") +
-  xlab("Year") +
-  theme(plot.margin = margin(t = half_line, r = half_line + 5, b = half_line, l = half_line))
 
 mx <- pred_obs[pred_obs$erosion == max(pred_obs$erosion), ]
 
@@ -170,7 +159,7 @@ g3 <- ggplot() +
   coord_cartesian(expand = FALSE, xlim = c(-0.5, 138))
 # ggsave("figs/state.png", width = 5.5, height = 4.8)
 
-g_left <- cowplot::plot_grid(g1, g2, ncol = 1)
+# g_left <- cowplot::plot_grid(g1, g2, ncol = 1)
 
 # mcmc panel --------------------------------------------------------------
 
@@ -199,14 +188,52 @@ g_mcmc <- mm %>%
   geom_line(colour = ribbon_col) +
   geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.3, fill = ribbon_col) +
   geom_ribbon(aes(ymin = lwr2, ymax = upr2), alpha = 0.4, fill = ribbon_col) +
-  ylab("Expected rate of widening") +
+  ylab("Expected erosion rate") +
   xlab("Sea otters") +
   coord_cartesian(expand = FALSE, ylim = c(0, 0.42))
 
-g_right <- cowplot::plot_grid(g3, g_mcmc, ncol = 1)
-g_combined <- cowplot::plot_grid(g_left, g_right, ncol = 2)
-g_combined
-ggsave("figs/fig1-lower.png", width = 6.2, height = 4, dpi = 300)
+# g_right <- cowplot::plot_grid(g3, g_mcmc, ncol = 1)
+# g_combined <- cowplot::plot_grid(g_left, g_right, ncol = 2)
+# g_combined
+
+# 1985-2008: Recolonization
+# 2009-2012: Pre-otter expansion of tidal creeks
+# 2013-2015: Otter expansion of tidal creeks
+# 2016-2018: Post-otter expansion of tidal creeks
+
+half_line <- 11 / 2
+vline_col <- "#00000060"
+lab_y <- 5
+hjust <- 0
+text_col <- "grey30"
+lab_size <- 2.5
+nudge <- 0.5
+g2 <- ggplot(otter, aes(year, y = sea_otter_no)) +
+  # geom_vline(xintercept = 1985, col = vline_col) +
+  geom_vline(xintercept = 2008.5, col = vline_col) +
+  geom_vline(xintercept = 2012.5, col = vline_col) +
+  geom_vline(xintercept = 2015.5, col = vline_col) +
+  annotate("text", x = 1998, y = lab_y + 2, hjust = hjust, angle = 0, col = text_col, label = "Recolonization", size = lab_size) +
+  annotate("text", x = 2010 - nudge, y = lab_y, hjust = hjust, angle = 90, col = text_col, label = "Pre-otter", size = lab_size) +
+  annotate("text", x = 2011.2 - nudge, y = lab_y, hjust = hjust, angle = 90, col = text_col, label = "expansion", size = lab_size) +
+  annotate("text", x = 2014 - nudge - 0.2, y = lab_y, hjust = hjust, angle = 90, col = text_col, label = "Otter", size = lab_size) +
+  annotate("text", x = 2015.2 - nudge - 0.2, y = lab_y, hjust = hjust, angle = 90, col = text_col, label = "expansion", size = lab_size) +
+  annotate("text", x = 2017.5 - nudge, y = lab_y, hjust = hjust, angle = 90, col = text_col, label = "Post-otter", size = lab_size) +
+  annotate("text", x = 2018.7 - nudge, y = lab_y, hjust = hjust, angle = 90, col = text_col, label = "expansion", size = lab_size) +
+  geom_ribbon(aes(year, ymin = lwr, ymax = upr), fill = ribbon_col, data = do, inherit.aes = FALSE, alpha = 0.3) +
+  geom_ribbon(aes(year, ymin = lwr2, ymax = upr2), fill = ribbon_col, data = do, inherit.aes = FALSE, alpha = 0.4) +
+  geom_line(aes(year, y = est), colour = ribbon_col, lwd = 0.8, data = do, inherit.aes = FALSE) +
+  geom_point(aes_string(x = "year", y = "sea_otter_no"), data = otter, inherit.aes = FALSE, alpha = 1, pch = 21, fill = "white", colour = "grey30", size = 1.5) +
+  # geom_path() +
+  coord_cartesian(xlim = c(min(otter$year) - 1, 2020), ylim = c(0, max(otter$sea_otter_no)), expand = FALSE) +
+  ylab("Sea otters") +
+  xlab("Year") +
+  theme(plot.margin = margin(t = half_line, r = half_line + 5, b = half_line, l = half_line))
+g2
+
+g <- cowplot::plot_grid(g2, g1, g3, g_mcmc, ncol = 2)
+ggsave("figs/fig1-lower.png", width = 6.6, height = 4.4, dpi = 300)
+ggsave("figs/fig1-lower.pdf", width = 6.6, height = 4.4)
 
 # Values for paper --------------------------------------------------------
 
