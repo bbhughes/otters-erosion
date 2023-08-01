@@ -33,8 +33,8 @@ crab_otter15_SI_plot <- ggplot(data = crab_marsh15, aes(x = usgs_oph_2015, y = D
     method = "glm", formula = y ~ x, se = TRUE, colour = "black",
     alpha = 0.3, method.args = list(family = Gamma(link = "log"))
   ) +
-  scale_x_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .03))) +
-  scale_y_continuous(limits = c(min_y, max_y), expand = expansion(mult = c(0, .04))) +
+  scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
+  scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
   annotate("text", x = 0.05, y = 4.5, label = "*", col = "grey30", size = sig_size) +
   labs(y = "Crab density per trap", x = "Otters per ha")
 crab_otter15_SI_plot
@@ -54,10 +54,10 @@ summary(pachy_otter_glm2)
 # Plot the data
 pachy_otter_plot <- ggplot(data = crab_marsh15, aes(x = usgs_oph_2015, y = (usgs_pachy_eaten_ha_day))) +
   theme(legend.position = "none") +
-  geom_point(alpha = 0.5, position = position_jitter(w = 0, h = 0)) +
+  geom_point(alpha = 0.5, position = position_jitter(w = 0.001, h = 0.5)) +
   geom_smooth(method = "glm", formula = y ~ log(x), se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = Gamma(link = "log"), na.action = na.omit)) +
-  scale_x_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .03))) +
-  scale_y_continuous(expand = expansion(mult = c(0, .04)), limits = c(0, NA)) +
+  scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
+  scale_y_continuous(expand = expansion(mult = c(0.01, .04)), limits = c(NA, NA)) +
   annotate("text", x = 0.005, y = 17, label = "**", col = "grey30", size = sig_size) +
   ggtitle("A") +
   theme(plot.title = element_text(hjust = 0)) +
@@ -86,8 +86,8 @@ pachy_retreat_plot <- ggplot(data = crab_marsh15, aes(x = (usgs_pachy_eaten_ha_d
   theme(legend.position = "none") +
   geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
   geom_smooth(method = "lm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
-  scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0, .03))) +
-  scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0, .04))) +
+  scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
+  scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
   annotate("text", x = 8, y = 0.5, label = "P = 0.089", col = "grey30", size = 3) +
   ggtitle("C") +
   theme(plot.title = element_text(hjust = 0)) +
@@ -114,8 +114,8 @@ pachy_bg_plot <- ggplot(data = crab_marsh15, aes(x = (usgs_pachy_eaten_ha_day), 
   theme(legend.position = "none") +
   geom_point(alpha = 0.5, position = position_jitter(w = 0, h = 0)) +
   geom_smooth(method = "glm", formula = y ~ log(x), se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = Gamma(link = "log"))) +
-  scale_x_continuous(limits = c(0, NA), expand = expansion(mult = c(0, .03))) +
-  scale_y_continuous(expand = expansion(mult = c(0, .04))) +
+  scale_x_continuous(limits = c(0, NA), expand = expansion(mult = c(0.01, .03))) +
+  scale_y_continuous(expand = expansion(mult = c(0.01, .04))) +
   annotate("text", x = 0.5, y = 3, label = "*", col = "grey30", size = sig_size) +
   ggtitle("B") +
   theme(plot.title = element_text(hjust = 0)) +
