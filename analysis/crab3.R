@@ -5,10 +5,10 @@ library(readr)
 library(lubridate)
 dir.create("figs", showWarnings = FALSE)
 
-source("theme_sleek.R")
+source("analysis/theme_sleek.R")
 theme_set(theme_sleek())
 
-d <- readr::read_csv("crab_change_2014_to_2016.csv", na = "na")
+d <- readr::read_csv("data/crab_change_2014_to_2016.csv", na = "na")
 
 names(d) <- tolower(names(d))
 d$sample_date <- lubridate::mdy(d$date)
@@ -92,10 +92,6 @@ gday <- ggplot(dat, aes(julian_day, est, ymin = lwr, ymax = upr)) +
   ) +
   theme(axis.title.y = ggtext::element_markdown(), axis.text.x.bottom = element_text(size = 8))
 gday
-#BH: This is the error I get: 
-#Error in `check_breaks_labels()`:
-#  ! `breaks` and `labels` must have the same length
-#Run `rlang::last_trace()` to see where the error occurred.
 
 x <- plot(fit, select = 2, xlim = c(1, 12))
 datm <- data.frame(est = x[[2]]$fit, month = x[[2]]$x, se = x[[2]]$se)
@@ -155,6 +151,7 @@ g <- cowplot::plot_grid(gdat_day, g1,
   label_fontface = "plain"
 ) +
   theme(plot.margin = margin(2, 6, 1, 1))
+g
 
 ggsave("figs/crabs-change.pdf", width = 8.75, height = 4.25)
 ggsave("figs/crabs-change.png", width = 8.75, height = 4.25)
