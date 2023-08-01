@@ -81,10 +81,7 @@ abline(v = YEAR_START)
 # 1993    1994
 
 w <- width_obs[YEAR_START:length(width_obs)]
-# o <- exp(pred_otter[10:length(width_obs)])
-# o <- otter[10:nrow(otter),"sea_otter_no",drop=TRUE]
 o <- otter[seq((YEAR_START - 1), nrow(otter) - 1), "sea_otter_no", drop = TRUE]
-# o <- otter[seq(8, nrow(otter) - 2),"sea_otter_no",drop=TRUE]
 plot(o, w)
 o[is.na(o)] <- mean(c(51, 67))
 plot(w)
@@ -118,8 +115,6 @@ plot(o, gompertz(o, 0.2, 0.05))
 gompertz(0, 0.2, 0.05)
 x <- seq(0, 130, length.out = 300)
 plot(x, gompertz(x, 0.2, 0.05))
-
-# do with all raw data?
 
 calc_width <- function(x) {
   width_obs <- numeric(length = length(x))
@@ -178,7 +173,6 @@ set.seed(1028)
 post_mid <- e$mid
 draws <- sample(seq_len(nrow(post$eta)), 100L)
 eta <- post$eta[draws, ]
-# eta <- post$zeta[draws, ]
 g <- reshape2::melt(eta) %>%
   rename(year_i = Var2, w_hat = value) %>%
   left_join(yr_lu) %>%
@@ -208,10 +202,7 @@ plot(fit_erosion)
 # Simulate from the GAM posterior -----------------------------------------
 
 # simulate directly from Gaussian approximate posterior...
-# br <- rmvn(50, coef(fit_erosion), vcov(fit_erosion))
-# matplot(t(br), col = "black", lty = 1, type = "l")
 br <- gam.mh(fit_erosion, thin = 2, ns = 2000, rw.scale = .15)
-# matplot(t(br$bs), col = "#00000020", lty = 1, type = "l")
 X <- predict(fit_erosion, newdata = nd_int, type = "lpmatrix")
 p <- X %*% t(br$bs)
 
@@ -294,9 +285,6 @@ zz %>%
   ggplot(aes(year_i, med)) +
   geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4) +
   geom_line() +
-  # geom_ribbon(aes(ymin = lwr, ymax = upr, x = year_i),
-  #   fill = "blue", alpha = 0.1, data = wq
-  # ) +
   geom_linerange(aes(ymin = lwr, ymax = upr, x = year_i),
     colour = "blue", data = wq
   ) +
@@ -338,7 +326,6 @@ data.frame(b = e$b) %>%
 ots <- seq(min(o), max(o), length.out = 200)
 
 mm <- purrr::map_dfr(ots, function(.o) {
-  # data.frame(otters = .o, effect = r * (1 - exp(- b * .o)))
   data.frame(otters = .o, effect = (1 - exp(-b * .o)))
 })
 
@@ -357,7 +344,6 @@ mm %>%
 ggsave("figs/gomp-gompertz-curve.png", width = 5, height = 4)
 
 mm <- purrr::map_dfr(ots, function(.o) {
-  # data.frame(otters = .o, effect = r * (1 - exp(- b * .o)))
   data.frame(otters = .o, effect = r - r * (1 - exp(-b * .o)))
 })
 
