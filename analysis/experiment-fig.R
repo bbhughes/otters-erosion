@@ -3,7 +3,7 @@ library(dplyr)
 library(glmmTMB)
 dir.create("figs", showWarnings = FALSE)
 
-source("theme_sleek.R")
+source("analysis/theme_sleek.R")
 theme_set(theme_sleek())
 
 sig_size <- 5
@@ -11,7 +11,7 @@ sig_size <- 5
 #### Experimental Data analyses####
 
 # Load data
-Otter_marsh_data <- read.table(file = "Otters_Marsh_experimental_data_R.csv", header = TRUE, sep = ",")
+Otter_marsh_data <- read.table(file = "data/Otters_Marsh_experimental_data_R.csv", header = TRUE, sep = ",")
 # str(Otter_marsh_data)
 # View(Otter_marsh_data)
 
@@ -33,7 +33,7 @@ t.test(Otter_marsh_data$BG_Consum_Crab, Otter_marsh_data$BG_Consum_NoCrab, data 
 
 # Plot the feeding assay data
 # Load Figure data
-Otter_marsh_data_assay_fig <- read.table(file = "Otters_Marsh_2015_R_assay_fig_data.csv", header = TRUE, sep = ",")
+Otter_marsh_data_assay_fig <- read.table(file = "data/Otters_Marsh_2015_R_assay_fig_data.csv", header = TRUE, sep = ",")
 # str(Otter_marsh_data_assay_fig)
 
 # plot the data
@@ -59,7 +59,7 @@ assay_plot
 #### Field Experimental Data analyses 2014-2016####
 # First, run preliminary data analysis comparing burrows (all burrows greater than 1 cm) and marsh percent cover between treatments
 # burrows
-prelim_exp_data <- read.table(file = "Otter_experiment_preliminary_2013.csv", header = TRUE, sep = ",")
+prelim_exp_data <- read.table(file = "data/Otter_experiment_preliminary_2013.csv", header = TRUE, sep = ",")
 # str(prelim_exp_data)
 
 pre_burrow_glmm_nb2 <- glmmTMB(burrows_1_3cm_pre ~ Treatment + (1 | plot_id) + (1 | Site), data = prelim_exp_data, family = nbinom2())
@@ -133,6 +133,13 @@ summary(burrow_glm_gaus)
 # r_burrow_glm <- DHARMa::simulateResiduals(burrow_glm_gaus)
 # plot(r_burrow_glm)
 
+# with random intercepts:
+burrow_lme <- lme4::lmer(Burrows_change ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2)
+summary(burrow_lme)
+
+burrow_lme <- glmmTMB::glmmTMB(Burrows_change ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2)
+summary(burrow_lme)
+
 ggplot(Otter_marsh_data2, aes(x = treat, y = Burrows_change)) +
   geom_point(position = position_jitter(width = 0.1, height = 0))
 
@@ -146,7 +153,7 @@ crab_glmm <- glmmTMB(crab_density_msq ~ treat + (1 | plot_id) + (1 | Site), data
 summary(crab_glmm) # significant otter effect, P=0.0157
 
 # Random variance nearly 0
-crab_glm <- glmmTMB(crab_density_msq ~ treat, data = Otter_marsh_data2, family = nbinom2(), na.action = na.omit)
+crab_glm <- glmmTMB(crab_density_msq ~ treat + (1 | plot_id), data = Otter_marsh_data2, family = nbinom2(), na.action = na.omit)
 summary(crab_glm)
 # P = 0.0400
 
@@ -224,7 +231,11 @@ AG_mass_glmm <- glmmTMB(AGMass_kg_msq ~ treat + (1 | plot_id) + (1 | Site), data
 summary(AG_mass_glmm)
 
 # Variance collapses to 0
-AG_mass_glm <- glmmTMB(AGMass_kg_msq ~ treat, data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
+AG_mass_glm <- glmmTMB(AGMass_kg_msq ~ treat + (1 | plot_id), data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
+summary(AG_mass_glm)
+
+# Variance collapses to 0
+AG_mass_glm <- glmmTMB(AGMass_kg_msq ~ treat + (1 | Site), data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
 summary(AG_mass_glm)
 
 # r_AG_mass_glm <- DHARMa::simulateResiduals(AG_mass_glm)
@@ -653,6 +664,3 @@ cowplot::plot_grid(
   p5 + m,
   p6 + m,
   ncol = 2, nrow = 2, align = "hv") + theme(plot.margin = margin(0, 0, -5, 0))
-
-ggsave("figs/ext_experiment_figure_aligned.pdf", width = 6.5, height = 5.15)
-
