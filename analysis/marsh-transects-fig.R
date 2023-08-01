@@ -2,12 +2,12 @@ library(ggplot2)
 library(dplyr)
 dir.create("figs", showWarnings = FALSE)
 
-source("theme_sleek.R")
+source("analysis/theme_sleek.R")
 theme_set(theme_sleek())
 sig_size <- 5
 
 #### TRANSECTS, No assumptions of when sea otters occupied tidal creeks prior to 2013.####
-crab_marsh15 <- read.csv("otter_marsh_transects.csv")
+crab_marsh15 <- read.csv("data/otter_marsh_transects.csv")
 str(crab_marsh15)
 crab_marsh15$Year <- as.factor(as.integer(crab_marsh15$Year))
 crab_marsh15$Otters_ha <- as.numeric(as.character(crab_marsh15$usgs_oph_2015))
@@ -67,12 +67,12 @@ pachy_otter_plot
 # Comparison of bank retreat and Pachygrapsus consumed per day,
 # LM model
 
-pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = crab_marsh15, na.action = na.omit, family = gaussian(link = "identity"))
+pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = crab_marsh15, na.action = na.omit)
 summary(pachy_retreat_lm)
 
 # P= 0.089
 
-r_pachy_retreat_glm <- DHARMa::simulateResiduals(pachy_retreat_glm)
+r_pachy_retreat_glm <- DHARMa::simulateResiduals(pachy_retreat_lm)
 plot(r_pachy_retreat_glm)
 
 # P= 0.0091
@@ -85,7 +85,7 @@ max_x <- max(crab_marsh15$usgs_pachy_eaten_ha_day)
 pachy_retreat_plot <- ggplot(data = crab_marsh15, aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
   theme(legend.position = "none") +
   geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
-  geom_smooth(method = "lm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
+  geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
   scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
   scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
   annotate("text", x = 8, y = 0.5, label = "P = 0.089", col = "grey30", size = 3) +

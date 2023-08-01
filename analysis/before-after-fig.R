@@ -13,7 +13,7 @@ sig_size <- 5
 
 #### Before/After Comparison during the most recent otter expansion in Elkhorn Slough####
 #### GLMM tweedie analysis of sea otters in creeks, crab consumption, and erosion across 13 creeks####
-before_after_sea_otter <- read.csv("before_after_sea_otter.csv")
+before_after_sea_otter <- read.csv("data/before_after_sea_otter.csv")
 str(before_after_sea_otter)
 
 # convert year to factor
@@ -40,7 +40,7 @@ plot(r_otter)
 # run this once at the top to set the theme:
 # from remotes::install_github('seananderson/ggsidekick')
 
-source("theme_sleek.R")
+source("analysis/theme_sleek.R")
 theme_set(theme_sleek())
 
 before_after_sea_otter$x <- NULL # in case you've run the code below already
