@@ -3,7 +3,6 @@ library(dplyr)
 library(mgcv)
 library(here)
 theme_set(ggsidekick::theme_sleek()) # https://github.com/seananderson/ggsidekick
-# theme_set(theme_light())
 
 ribbon_col <- RColorBrewer::brewer.pal(5, "Blues")[5]
 
@@ -11,21 +10,13 @@ erosion <- readr::read_csv(here("data", "erosion_evd.csv"))
 otter <- readr::read_csv(here("data", "sea_otter_population_data.csv"))
 names(erosion) <- tolower(names(erosion))
 names(otter) <- tolower(names(otter))
-# erosion$X <- NULL
-# erosion$Y <- NULL
-# erosion <- sdmTMB::add_utm_columns(erosion,
-#   ll_names = c("long", "lat"),
-#   units = c("m")
-# )
-# erosion$X <- erosion$X / 10
-# erosion$Y <- erosion$Y / 10
 erosion$id <- as.factor(as.character(erosion$id))
 erosion$section <- as.factor(as.character(erosion$section))
-#
 RE <- TRUE
 
 if (RE) {
-  fit_erosion <- gamm(erosion_m_y ~ s(year), random = list(section=~1),
+  fit_erosion <- gamm(erosion_m_y ~ s(year),
+    random = list(section = ~1),
     family = gaussian(link = "identity"),
     data = erosion
   )
@@ -48,8 +39,6 @@ fit_otter <- gam(sea_otter_no ~ s(year),
 plot(fit_otter)
 
 nd <- data.frame(year = seq(min(otter$year), max(otter$year), length.out = 300))
-# nd$X <- mean(erosion$X)
-# nd$Y <- mean(erosion$Y)
 
 if (!RE) {
   pred_erosion <- predict(fit_erosion, newdata = nd)
@@ -59,8 +48,6 @@ if (!RE) {
 pred_otter <- predict(fit_otter, newdata = nd)
 pred <- data.frame(year = nd$year, erosion = pred_erosion, otter = pred_otter)
 nd_int <- data.frame(year = otter$year)
-# nd_int$X <- mean(erosion$X)
-# nd_int$Y <- mean(erosion$Y)
 
 if (!RE) {
   pred_erosion <- predict(fit_erosion, newdata = nd_int)
@@ -107,9 +94,7 @@ make_ts_plot <- function(dat, point_dat, xlim, ylim, xlab = "Year", ylab = "", p
   half_line <- 11 / 2
   ggplot(dat, aes(year, y = est, ymin = lwr, ymax = upr)) +
     geom_point(aes_string(x = "year", y = point_y), data = point_dat, inherit.aes = FALSE, alpha = 1, position = position_jitter(width = 0.80, height = 0), pch = 21, fill = "white", colour = "grey50", size = 1) +
-    # geom_ribbon(fill = "grey80", alpha = 0.7) +
     geom_ribbon(alpha = 0.3, fill = ribbon_col) +
-    # geom_ribbon(aes(ymin = lwr2, ymax = upr2), fill = "grey60", alpha = 0.8) +
     geom_ribbon(aes(ymin = lwr2, ymax = upr2), alpha = 0.4, fill = ribbon_col) +
     geom_line(lwd = 0.6, colour = ribbon_col) +
     coord_cartesian(xlim = xlim, ylim = ylim, expand = FALSE) +
@@ -120,8 +105,6 @@ make_ts_plot <- function(dat, point_dat, xlim, ylim, xlab = "Year", ylab = "", p
       r = half_line + 5, b = half_line, l = half_line
     ))
 }
-
-# ggsave("figs/ts-erosion.png", width = 5.5, height = 3.4)
 
 nd3 <- data.frame(year = seq(min(otter$year), max(otter$year), length.out = 300))
 po <- predict(fit_otter, newdata = nd3, se.fit = TRUE)
@@ -137,7 +120,6 @@ g1 <- make_ts_plot(de, erosion,
   ylim = quantile(erosion$erosion_m_y, probs = c(0.025, 0.975)),
   point_y = "erosion_m_y", ylab = "Erosion (m/year)"
 )
-
 
 mx <- pred_obs[pred_obs$erosion == max(pred_obs$erosion), ]
 
@@ -157,9 +139,6 @@ g3 <- ggplot() +
   annotate("text", x = 17, y = 0.032, label = "1980s") +
   annotate("text", y = mx$erosion + 0.04, x = 31, label = mx$year) +
   coord_cartesian(expand = FALSE, xlim = c(-0.5, 138))
-# ggsave("figs/state.png", width = 5.5, height = 4.8)
-
-# g_left <- cowplot::plot_grid(g1, g2, ncol = 1)
 
 # mcmc panel --------------------------------------------------------------
 
@@ -192,10 +171,6 @@ g_mcmc <- mm %>%
   xlab("Sea otters") +
   coord_cartesian(expand = FALSE, ylim = c(0, 0.42))
 
-# g_right <- cowplot::plot_grid(g3, g_mcmc, ncol = 1)
-# g_combined <- cowplot::plot_grid(g_left, g_right, ncol = 2)
-# g_combined
-
 # 1985-2008: Recolonization
 # 2009-2012: Pre-otter expansion of tidal creeks
 # 2013-2015: Otter expansion of tidal creeks
@@ -224,7 +199,6 @@ g2 <- ggplot(otter, aes(year, y = sea_otter_no)) +
   geom_ribbon(aes(year, ymin = lwr2, ymax = upr2), fill = ribbon_col, data = do, inherit.aes = FALSE, alpha = 0.4) +
   geom_line(aes(year, y = est), colour = ribbon_col, lwd = 0.8, data = do, inherit.aes = FALSE) +
   geom_point(aes_string(x = "year", y = "sea_otter_no"), data = otter, inherit.aes = FALSE, alpha = 1, pch = 21, fill = "white", colour = "grey30", size = 1.5) +
-  # geom_path() +
   coord_cartesian(xlim = c(min(otter$year) - 1, 2020), ylim = c(0, max(otter$sea_otter_no)), expand = FALSE) +
   ylab("Sea otters") +
   xlab("Year") +
@@ -237,9 +211,6 @@ ggsave("figs/fig1-lower.pdf", width = 6.6, height = 4.4)
 
 # Values for paper --------------------------------------------------------
 
-# quantile(r * (1 - exp(-b * 100)), probs = c(0.025, 0.5, 0.975))
-# quantile(r * (1 - exp(-b * 1)), probs = c(0.025, 0.5, 0.975))
-
 # expected rate of widening at 0 and 100:
 quantile(r - r * (1 - exp(-b * 0)), probs = c(0.05, 0.5, 0.95))
 quantile(r - r * (1 - exp(-b * 100)), probs = c(0.05, 0.5, 0.95))
@@ -250,13 +221,3 @@ round(quantile(exp(r - r * (1 - exp(-b * 100))) - 1, probs = c(0.05, 0.5, 0.95))
 
 round(quantile(exp(r - r * (1 - exp(-b * 0))) - 1, probs = c(0.025, 0.5, 0.975)), 2)
 round(quantile(exp(r - r * (1 - exp(-b * 100))) - 1, probs = c(0.025, 0.5, 0.975)), 2)
-
-
-# fraction reduction in r
-# max(o)
-# quantile(1 - exp(-b * max(o)), probs = c(0.025, 0.5, 0.975))
-# quantile(1 - exp(-b * 100), probs = c(0.025, 0.5, 0.975))
-# quantile(1 - exp(-b * 100), probs = c(0.05, 0.5, 0.95))
-# quantile(1 - exp(-b * 1), probs = c(0.025, 0.5, 0.975))
-#
-#
