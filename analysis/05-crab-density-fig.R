@@ -138,7 +138,8 @@ gdat_day <- ggplot(dplot, aes(julian_day, change_in_crab, colour = treatment)) +
   ylab("Change in crabs per 2m<sup>2</sup>") +
   xlab("Sample date") +
   theme(legend.position = c(0.85, 0.8)) +
-  theme(axis.title.y = ggtext::element_markdown(), axis.text.x.bottom = element_text(size = 8))
+  theme(axis.title.y = ggtext::element_markdown(), axis.text.x.bottom = element_text(size = 8)) +
+  annotate("text", x = 1600, y = 18, label = "*", col = "grey30", size = 7)
 gdat_day
 
 g1 <- cowplot::plot_grid(gday, gmonth,
