@@ -383,7 +383,7 @@ p3 <- ggplot() +
   ylab(expression(atop("Aboveground mass", (kg(dw) %.% m^-2)))) +
   scale_y_continuous(expand = expansion(mult = c(0, .04))) +
   ggtitle("D") +
-  annotate("text", x = 0.85, y = 2.2, label = "*", col = "grey30", size = sig_size) +
+  annotate("text", x = 0.85, y = 2.2, label = "**", col = "grey30", size = sig_size) +
   theme(legend.position = "none")  + theme(axis.text.x.bottom = element_blank(), axis.title.x.bottom = element_blank())
 p3
 
