@@ -75,8 +75,6 @@ summary(pachy_retreat_lm)
 r_pachy_retreat_glm <- DHARMa::simulateResiduals(pachy_retreat_lm)
 plot(r_pachy_retreat_glm)
 
-# P= 0.0091
-
 # Plot the data
 min_y <- min(crab_marsh15$bank_retreat_2013_2015_m_yr)
 max_y <- max(crab_marsh15$bank_retreat_2013_2015_m_yr)
