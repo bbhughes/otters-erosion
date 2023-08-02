@@ -64,10 +64,6 @@ prelim_exp_data <- read.table(file = "data/Otter_experiment_preliminary_2013.csv
 
 pre_burrow_glmm_nb2 <- glmmTMB(burrows_1_3cm_pre ~ Treatment + (1 | plot_id) + (1 | Site), data = prelim_exp_data, family = nbinom2())
 summary(pre_burrow_glmm_nb2)
-# block (plot_id) converges to 0 variance explained, drop from analysis
-
-pre_burrow_glmm_nb2_2 <- glmmTMB(burrows_1_3cm_pre ~ Treatment + (1 | Site), data = prelim_exp_data, family = nbinom2())
-summary(pre_burrow_glmm_nb2_2)
 # P = 0.623, dispersion paramter = 0.48, df residual = 46, no difference in burrows for pre-experimental test
 
 # marsh_percent_cover
@@ -100,30 +96,12 @@ Otter_marsh_data2$Site <- as.factor(as.character(Otter_marsh_data2$Site))
 
 # View(Otter_marsh_data2)
 
-# glmm for change in burrows from 2014-2015 with site and plot ID as a random factor, adding a constant to all data points (minimum change in burrows, -26)
-burrow_glmm_nb2 <- glmmTMB((Burrows_change + 26.000001) ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2, family = nbinom2())
-summary(burrow_glmm_nb2)
+# glmm for change in burrows from 2014-2015 with site and plot ID as a random factor
+burrow_lme <- lme4::lmer(Burrows_change ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2)
+summary(burrow_lme)
 
-# variance components collapsed to zero
-# diagnose(burrow_glmm)
-
-burrow_glmm <- glmmTMB((Burrows_change + 26.000001) ~ treat + (1 | Site), data = Otter_marsh_data2, family = nbinom2())
-summary(burrow_glmm)
-
-burrow_glm <- glmmTMB((Burrows_change + 26.000001) ~ treat, data = Otter_marsh_data2, family = nbinom2())
-summary(burrow_glm)
-
-burrow_glm_nb1 <- glmmTMB((Burrows_change + 26.000001) ~ treat, data = Otter_marsh_data2, family = nbinom1())
-summary(burrow_glm_nb1)
-
-burrow_glm_p <- glmmTMB((Burrows_change + 26.000001) ~ treat, data = Otter_marsh_data2, family = poisson())
-summary(burrow_glm_p)
-
-burrow_glm_qp <- glm((Burrows_change + 26.000001) ~ treat, data = Otter_marsh_data2, family = quasipoisson())
-summary(burrow_glm_qp)
-
-burrow_glm_gaus <- glm((Burrows_change) ~ treat, data = Otter_marsh_data2, family = gaussian())
-summary(burrow_glm_gaus)
+burrow_lme <- glmmTMB::glmmTMB(Burrows_change ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2)
+summary(burrow_lme)
 
 AIC(burrow_glm, burrow_glm_nb1, burrow_glm_p, burrow_glm_qp, burrow_glm_gaus)
 summary(burrow_glm_gaus)
@@ -133,13 +111,6 @@ summary(burrow_glm_gaus)
 # r_burrow_glm <- DHARMa::simulateResiduals(burrow_glm_gaus)
 # plot(r_burrow_glm)
 
-# with random intercepts:
-burrow_lme <- lme4::lmer(Burrows_change ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2)
-summary(burrow_lme)
-
-burrow_lme <- glmmTMB::glmmTMB(Burrows_change ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2)
-summary(burrow_lme)
-
 ggplot(Otter_marsh_data2, aes(x = treat, y = Burrows_change)) +
   geom_point(position = position_jitter(width = 0.1, height = 0))
 
@@ -147,15 +118,9 @@ tapply(Otter_marsh_data2$Burrows_change, Otter_marsh_data2$treat, FUN = mean)
 crab_dec <- ((2.12 - 1.04) / ((2.12 + 1.04) / 2)) * 100
 crab_dec # 68.4% increase in crabs without otters
 
-
 # glmm for crab density (collected in 2016) with site and plot as random factors
 crab_glmm <- glmmTMB(crab_density_msq ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2, family = nbinom2(), na.action = na.omit)
 summary(crab_glmm) # significant otter effect, P=0.0157
-
-# Random variance nearly 0
-crab_glm <- glmmTMB(crab_density_msq ~ treat + (1 | plot_id), data = Otter_marsh_data2, family = nbinom2(), na.action = na.omit)
-summary(crab_glm)
-# P = 0.0400
 
 # decrease in crab density with sea otters present
 tapply(Otter_marsh_data2$crab_density_msq, Otter_marsh_data2$treat, FUN = mean)
@@ -172,22 +137,13 @@ ggplot(Otter_marsh_data2, aes(x = treat, y = crab_per_trap)) +
 bulkdens_glmm_gamma <- glmmTMB(BulkDens_kg_msq ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
 summary(bulkdens_glmm_gamma)
 
-bulkdens_glmm_gamma2 <- glmmTMB(BulkDens_kg_msq ~ treat, data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
-summary(bulkdens_glmm_gamma2)
-
 bulkdens_glmm_tweedie <- glmmTMB(BulkDens_kg_msq ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2, family = tweedie(link = "log"), na.action = na.omit)
 summary(bulkdens_glmm_tweedie)
-
-bulkdens_glmm_tweedie2 <- glmmTMB(BulkDens_kg_msq ~ treat, data = Otter_marsh_data2, family = tweedie(link = "log"), na.action = na.omit)
-summary(bulkdens_glmm_tweedie2)
 
 bulkdens_lmm <- glmmTMB(BulkDens_kg_msq ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2, family = gaussian(link = "identity"), na.action = na.omit)
 summary(bulkdens_lmm)
 
-bulkdens_lmm2 <- glmmTMB(BulkDens_kg_msq ~ treat, data = Otter_marsh_data2, family = gaussian(link = "identity"), na.action = na.omit)
-summary(bulkdens_lmm2)
-
-AIC(bulkdens_glmm_gamma, bulkdens_glmm_gamma2, bulkdens_glmm_tweedie, bulkdens_glmm_tweedie2, bulkdens_lmm, bulkdens_lmm2)
+AIC(bulkdens_glmm_gamma, bulkdens_glmm_tweedie, bulkdens_lmm)
 # bulk_dens_lmm is the top selected model
 # P = 0.0082
 
@@ -230,18 +186,10 @@ ggplot(Otter_marsh_data2, aes(x = treat, y = AGMass_kg_msq)) +
 AG_mass_glmm <- glmmTMB(AGMass_kg_msq ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
 summary(AG_mass_glmm)
 
-# Variance collapses to 0
-AG_mass_glm <- glmmTMB(AGMass_kg_msq ~ treat + (1 | plot_id), data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
-summary(AG_mass_glm)
-
-# Variance collapses to 0
-AG_mass_glm <- glmmTMB(AGMass_kg_msq ~ treat + (1 | Site), data = Otter_marsh_data2, family = Gamma(link = "log"), na.action = na.omit)
-summary(AG_mass_glm)
-
 # r_AG_mass_glm <- DHARMa::simulateResiduals(AG_mass_glm)
 # plot(r_AG_mass_glm)
 
-# Significant otter effect, P = 0.0011
+# Significant otter effect, P = 0.000905
 # Otters had 0.37 kg more AG biomass per msq
 # difference in bulk density with sea otters present
 tapply(Otter_marsh_data2$AGMass_kg_msq, Otter_marsh_data2$treat, FUN = mean, na.action = na.omit)
