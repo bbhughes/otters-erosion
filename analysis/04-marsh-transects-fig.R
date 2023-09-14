@@ -7,7 +7,7 @@ theme_set(theme_sleek())
 sig_size <- 5
 
 #### TRANSECTS, No assumptions of when sea otters occupied tidal creeks prior to 2013.####
-crab_marsh15 <- read.csv("data/otter_marsh_transects.csv")
+crab_marsh15 <- read.csv("otter_marsh_transects.csv")
 str(crab_marsh15)
 crab_marsh15$Year <- as.factor(as.integer(crab_marsh15$Year))
 crab_marsh15$Otters_ha <- as.numeric(as.character(crab_marsh15$usgs_oph_2015))
@@ -86,7 +86,7 @@ pachy_retreat_plot <- ggplot(data = crab_marsh15, aes(x = (usgs_pachy_eaten_ha_d
   geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
   scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
   scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
-  annotate("text", x = 8, y = 0.5, label = "P = 0.089", col = "grey30", size = 3) +
+  annotate("text", x = 8, y = 0.5, label = "P = 0.387", col = "grey30", size = 3) +
   ggtitle("C") +
   theme(plot.title = element_text(hjust = 0)) +
   labs(y = expression(atop("Bank erosion", "(m per year)")), x = "Crabs consumed per ha per day")
