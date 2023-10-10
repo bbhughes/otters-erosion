@@ -7,7 +7,7 @@ theme_set(theme_sleek())
 sig_size <- 5
 
 #### TRANSECTS, No assumptions of when sea otters occupied tidal creeks prior to 2013.####
-crab_marsh15 <- read.csv("otter_marsh_transects.csv")
+crab_marsh15 <- read.csv("data/otter_marsh_transects.csv")
 str(crab_marsh15)
 crab_marsh15$Year <- as.factor(as.integer(crab_marsh15$Year))
 crab_marsh15$Otters_ha <- as.numeric(as.character(crab_marsh15$usgs_oph_2015))
@@ -38,6 +38,7 @@ crab_otter15_SI_plot <- ggplot(data = crab_marsh15, aes(x = usgs_oph_2015, y = D
   annotate("text", x = 0.05, y = 4.5, label = "*", col = "grey30", size = sig_size) +
   labs(y = "Crab density per trap", x = "Otters per ha")
 crab_otter15_SI_plot
+ggsave("figs/extended-fig5.jpg", width = 5, height = 3, dpi = 300)
 
 # Comparison of otter abundance and Pachygrapsus consumed per day
 # GLM model using log tranformation
@@ -83,7 +84,7 @@ max_x <- max(crab_marsh15$usgs_pachy_eaten_ha_day)
 pachy_retreat_plot <- ggplot(data = crab_marsh15, aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
   theme(legend.position = "none") +
   geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
-  geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
+  geom_smooth(method = "glm", formula = y ~ log(x), se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
   scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
   scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
   annotate("text", x = 8, y = 0.5, label = "P = 0.387", col = "grey30", size = 3) +

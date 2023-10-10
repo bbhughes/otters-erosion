@@ -154,5 +154,6 @@ g <- cowplot::plot_grid(gdat_day, g1,
   theme(plot.margin = margin(2, 6, 1, 1))
 g
 
-ggsave("figs/crabs-change.pdf", width = 8.75, height = 4.25)
-ggsave("figs/crabs-change.png", width = 8.75, height = 4.25)
+ggsave("figs/extended-fig2.pdf", width = 8.75, height = 4.25)
+ggsave("figs/extended-fig2.png", width = 8.75, height = 4.25)
+ggsave("figs/extended-fig2.jpg", width = 8.75, height = 4.25, quality = 85)

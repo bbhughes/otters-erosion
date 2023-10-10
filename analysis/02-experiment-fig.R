@@ -41,19 +41,23 @@ assay_plot <- ggplot(Otter_marsh_data_assay_fig, aes(x = Marsh_type, y = biomass
   geom_violin(position = position_dodge(1)) +
   geom_dotplot(
     binaxis = "y", stackdir = "center",
-    position = position_dodge(1), color = "black"
+    position = position_dodge(1)
   ) +
-  theme_bw(base_size = 15) +
+  # theme_bw() +
   theme(legend.position = c(0.15, 0.85)) +
-  annotate("text", x = 0.75, y = 0.35, label = "a", size = 7) +
-  annotate("text", x = 1.25, y = 0.45, label = "a", size = 7) +
-  annotate("text", x = 1.75, y = 0.37, label = "x", size = 7) +
-  annotate("text", x = 2.15, y = 0.5, label = "y", size = 7) +
+  annotate("text", x = 0.75, y = 0.35, label = "a") +
+  annotate("text", x = 1.25, y = 0.45, label = "a") +
+  annotate("text", x = 1.75, y = 0.37, label = "x") +
+  annotate("text", x = 2.15, y = 0.5, label = "y") +
   xlab("") +
-  ylab(expression("Marsh biomass consumed (g (fw) per trial)")) +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA, size = 1)) +
-  theme(axis.text.x = element_text())
+  ylab(expression("Marsh biomass consumed (g (fw) per trial)"))
+  # theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), panel.background = element_blank(), panel.border = element_rect(colour = "black", fill = NA)) +
+  # theme(axis.text.x = element_text())
 assay_plot
+# ggsave("figs/extended-fig4.jpg", width = 5, height = 4)
+ggsave("figs/extended-fig4.png", width = 5, height = 4)
+ggsave("figs/extended-fig4.pdf", width = 5, height = 4)
+ggsave("figs/extended-fig4.eps", width = 5, height = 4)
 # Fig. S2
 
 #### Field Experimental Data analyses 2014-2016####
@@ -103,8 +107,8 @@ summary(burrow_lme)
 burrow_lme <- glmmTMB::glmmTMB(Burrows_change ~ treat + (1 | plot_id) + (1 | Site), data = Otter_marsh_data2)
 summary(burrow_lme)
 
-AIC(burrow_glm, burrow_glm_nb1, burrow_glm_p, burrow_glm_qp, burrow_glm_gaus)
-summary(burrow_glm_gaus)
+# AIC(burrow_glm, burrow_glm_nb1, burrow_glm_p, burrow_glm_qp, burrow_glm_gaus)
+# summary(burrow_glm_gaus)
 # non Significant Otter effect, P = 0.04789
 # decrease in crab burrows with sea otters present
 
@@ -612,3 +616,7 @@ cowplot::plot_grid(
   p5 + m,
   p6 + m,
   ncol = 2, nrow = 2, align = "hv") + theme(plot.margin = margin(0, 0, -5, 0))
+
+# ggsave("figs/extended-fig1.eps", width = 6.5, height = 5)
+ggsave("figs/extended-fig1.jpg", width = 6.5, height = 5, quality = 85)
+ggsave("figs/extended-fig1.pdf", width = 6.5, height = 5)

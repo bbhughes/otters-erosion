@@ -51,10 +51,19 @@ plot(nd_int$year, pred_erosion, type = "l", ylab = "Erosion (m/year)", xlab = "Y
 points(nd_int$year, pred_erosion)
 abline(h = 0, lty = 2)
 abline(v = YEAR_START + min(nd_int$year) - 1, lty = 2)
-
 plot(otter$year, otter$sea_otter_no, type = "o", xlim = range(nd_int$year), ylab = "Sea otters", xlab = "")
 abline(v = YEAR_START + min(nd_int$year) - 1, lty = 2)
+dev.off()
 
+setEPS()
+postscript("figs/gomp-gam-erosion-year-choice.eps", width = 4, height = 3.5)
+par(mfrow = c(2, 1), cex = 0.7, mar = c(2, 4, 1, 1), oma = c(1, 0, 1, 1))
+plot(nd_int$year, pred_erosion, type = "l", ylab = "Erosion (m/year)", xlab = "Year")
+points(nd_int$year, pred_erosion)
+abline(h = 0, lty = 2)
+abline(v = YEAR_START + min(nd_int$year) - 1, lty = 2)
+plot(otter$year, otter$sea_otter_no, type = "o", xlim = range(nd_int$year), ylab = "Sea otters", xlab = "")
+abline(v = YEAR_START + min(nd_int$year) - 1, lty = 2)
 dev.off()
 
 n_t <- length(pred_erosion)
@@ -155,12 +164,17 @@ fit <- stan(
   chains = 4L,
   iter = 2000L,
   cores = 1L,
+  seed = 1292849,
   control = list(adapt_delta = 0.95)
 )
 pars <- c("r", "a", "b", "sigma")
 print(fit, pars = pars)
 
-png("figs/gomp-mcmc-hex.png", width = 8, height = 8, units = "in", res = 200)
+png("figs/extended-fig8.png", width = 8, height = 8, units = "in", res = 200)
+bayesplot::mcmc_pairs(fit, pars = pars, off_diag_fun = "hex")
+dev.off()
+
+jpeg("figs/extended-fig8.jpg", width = 8, height = 8, units = "in", res = 200, quality = 80)
 bayesplot::mcmc_pairs(fit, pars = pars, off_diag_fun = "hex")
 dev.off()
 
@@ -202,17 +216,17 @@ plot(fit_erosion)
 # Simulate from the GAM posterior -----------------------------------------
 
 # simulate directly from Gaussian approximate posterior...
+set.seed(2193829)
 br <- gam.mh(fit_erosion, thin = 2, ns = 2000, rw.scale = .15)
 X <- predict(fit_erosion, newdata = nd_int, type = "lpmatrix")
 p <- X %*% t(br$bs)
 
-png("figs/gomp-gam-mh.png", width = 8, height = 4, units = "in", res = 300)
-par(mfrow = c(1, 2), cex = 0.7)
-matplot(p, lty = 1, type = "l", col = "#00000010", xlab = "Year step", ylab = "Erosion (m/year)")
-abline(v = YEAR_START)
-
-n_t <- nrow(nd_int)
+jpeg("figs/extended-fig6.jpg", width = 8, height = 3.75, units = "in", res = 300, quality = 80)
+par(mfrow = c(1, 2), cex = 0.85)
 n_samps <- 200L
+matplot(p[,1:n_samps], lty = 1, type = "l", col = "#00000030", xlab = "Year step", ylab = "Erosion (m/year)")
+abline(v = YEAR_START)
+n_t <- nrow(nd_int)
 width_obs <- matrix(nrow = n_samps, ncol = n_t)
 width_obs[, 1] <- 1 # FIXME?
 set.seed(1028234)
@@ -222,8 +236,7 @@ for (j in seq_along(draws)) {
     width_obs[j, i] <- width_obs[j, i - 1] + p[i, draws[j]] * width_obs[j, i - 1]
   }
 }
-
-matplot(t(width_obs), type = "l", log = "y", xlab = "Year step", ylab = "Width assuming starting value of 1", lty = 1, col = "#00000050")
+matplot(t(width_obs), type = "l", log = "y", xlab = "Year step", ylab = "Width assuming starting value of 1", lty = 1, col = "#00000030")
 abline(v = YEAR_START)
 dev.off()
 
@@ -256,7 +269,9 @@ out <- purrr::map(1:nrow(w), function(i) {
   e
 })
 
-png("figs/gomp-b-r-hist.png", width = 7, height = 4, units = "in", res = 200)
+setEPS()
+postscript("figs/extended-fig9.eps", width = 7, height = 4)
+# png("figs/gomp-b-r-hist.png", width = 7, height = 4, units = "in", res = 200)
 par(mfrow = c(1, 2), cex = 0.85)
 b <- lapply(out, `[[`, "b") %>% unlist()
 hist(b, main = "b posterior")
@@ -275,7 +290,7 @@ lwr <- apply(w, 2, quantile, probs = 0.1)
 upr <- apply(w, 2, quantile, probs = 0.9)
 wq <- data.frame(med = med, lwr = lwr, upr = upr, year_i = seq_along(med))
 
-zz %>%
+g1 <- zz %>%
   group_by(year_i) %>%
   summarise(
     lwr = quantile(w_hat, probs = 0.1),
@@ -283,13 +298,13 @@ zz %>%
     med = quantile(w_hat, probs = 0.5)
   ) %>%
   ggplot(aes(year_i, med)) +
-  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), fill = "grey65") +
   geom_line() +
   geom_linerange(aes(ymin = lwr, ymax = upr, x = year_i),
     colour = "blue", data = wq
   ) +
   geom_point(aes(y = med, x = year_i),
-    colour = "blue", alpha = 0.9, data = wq
+    colour = "blue", data = wq
   ) +
   scale_y_log10() +
   ylab("Width (relative to starting value of 1)") +
@@ -301,7 +316,7 @@ aa <- purrr::map_dfr(out, function(.x) {
     rename(year_i = Var2, reff = value)
 })
 
-aa %>%
+g2 <- aa %>%
   group_by(year_i) %>%
   summarise(
     lwr = quantile(reff, probs = 0.025),
@@ -311,11 +326,14 @@ aa %>%
   # ggplot(aes(year_i, exp(med) - 1)) +
   ggplot(aes(year_i, med)) +
   # geom_ribbon(aes(ymin = exp(lwr) - 1, ymax = exp(upr) - 1), alpha = 0.4) +
-  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.4) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), fill = "grey65") +
   geom_line() +
   xlab("Year increment") +
   ylab(expression(Annual ~ rate ~ of ~ erosion ~ accounting ~ "for" ~ otters ~ (r[eff])))
 ggsave("figs/gomp-reff-ts.png", width = 5, height = 4)
+
+cowplot::plot_grid(g1, g2, ncol = 2L)
+ggsave("figs/extended-fig10.eps", width = 9, height = 4)
 
 data.frame(b = e$b) %>%
   ggplot(aes(b)) +
@@ -337,11 +355,11 @@ mm %>%
     med = quantile(effect, probs = 0.5)
   ) %>%
   ggplot(aes(otters, med)) +
+  geom_ribbon(aes(ymin = lwr, ymax = upr), fill = "grey65") +
   geom_line() +
-  geom_ribbon(aes(ymin = lwr, ymax = upr), alpha = 0.5) +
   ylab("Proportion reduction in base rate of erosion") +
   xlab("Otters")
-ggsave("figs/gomp-gompertz-curve.png", width = 5, height = 4)
+ggsave("figs/extended-fig7.eps", width = 5, height = 4)
 
 mm <- purrr::map_dfr(ots, function(.o) {
   data.frame(otters = .o, effect = r - r * (1 - exp(-b * .o)))
