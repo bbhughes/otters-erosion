@@ -70,7 +70,7 @@ pachy_otter_plot
 pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = crab_marsh15, na.action = na.omit)
 summary(pachy_retreat_lm)
 
-# P= 0.089
+# P= 0.387
 
 r_pachy_retreat_glm <- DHARMa::simulateResiduals(pachy_retreat_lm)
 plot(r_pachy_retreat_glm)
