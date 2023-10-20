@@ -70,8 +70,25 @@ pachy_otter_plot
 
 pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = crab_marsh15, na.action = na.omit)
 summary(pachy_retreat_lm)
-
 # P= 0.387
+
+par(mfrow = c(2, 2))
+plot(pachy_retreat_lm)
+
+# sensitivity to site leverage:
+# -------------------------------------
+dat <- dplyr::filter(crab_marsh15, !is.na(bank_retreat_2013_2015_m_yr), !is.na(usgs_pachy_eaten_ha_day))
+out <- purrr::map_dfr(seq_len(nrow(dat)), function(i) {
+  x <- dat[-i,,drop=FALSE]
+  m <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = x)
+  ci <- confint(m)
+  data.frame(removed = dat[i,"Site",drop=TRUE], lwr = ci[2,1], est = coef(m)[[2]], upr = ci[2,2])
+})
+g1 <- ggplot(out, aes(y = est, x = removed, ymin = lwr, ymax = upr)) + geom_pointrange() + coord_flip() +
+  geom_hline(yintercept = 0, lty = 2) + ylab("Slope estimate\n(crabs consumed per day)") + xlab("Site removed")
+
+g1
+# -------------------------------------
 
 r_pachy_retreat_glm <- DHARMa::simulateResiduals(pachy_retreat_lm)
 plot(r_pachy_retreat_glm)
@@ -83,12 +100,30 @@ min_x <- min(crab_marsh15$usgs_pachy_eaten_ha_day)
 max_x <- max(crab_marsh15$usgs_pachy_eaten_ha_day)
 pachy_retreat_plot <- ggplot(data = crab_marsh15, aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
   theme(legend.position = "none") +
-  geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
-  geom_smooth(method = "glm", formula = y ~ log(x), se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
+  # geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
+  geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
   scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
   scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
   annotate("text", x = 8, y = 0.5, label = "P = 0.387", col = "grey30", size = 3) +
   ggtitle("C") +
+  geom_text(mapping = aes(label = Site)) +
+  theme(plot.title = element_text(hjust = 0)) +
+  labs(y = expression(atop("Bank erosion", "(m per year)")), x = "Crabs consumed per ha per day")
+pachy_retreat_plot
+
+# remove site J:
+pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = filter(crab_marsh15, Site != "J"), na.action = na.omit)
+summary(pachy_retreat_lm)
+
+pachy_retreat_plot <- ggplot(data = filter(crab_marsh15, Site != "J"), aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
+  theme(legend.position = "none") +
+  # geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
+  geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
+  scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
+  scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
+  annotate("text", x = 8, y = 0.5, label = "P = 0.054", col = "grey30", size = 3) +
+  ggtitle("C") +
+  geom_text(mapping = aes(label = Site)) +
   theme(plot.title = element_text(hjust = 0)) +
   labs(y = expression(atop("Bank erosion", "(m per year)")), x = "Crabs consumed per ha per day")
 pachy_retreat_plot
