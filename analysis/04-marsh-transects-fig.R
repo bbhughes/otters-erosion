@@ -98,35 +98,52 @@ min_y <- min(crab_marsh15$bank_retreat_2013_2015_m_yr)
 max_y <- max(crab_marsh15$bank_retreat_2013_2015_m_yr)
 min_x <- min(crab_marsh15$usgs_pachy_eaten_ha_day)
 max_x <- max(crab_marsh15$usgs_pachy_eaten_ha_day)
-pachy_retreat_plot <- ggplot(data = crab_marsh15, aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
+pachy_retreat_plot <- ggplot(data = filter(crab_marsh15, Site != "J"), aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
   theme(legend.position = "none") +
-  # geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
+  geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
   geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
+  geom_point(aes(x = 8.73, y = 0.43), shape = 4, alpha = 0.5) + # adds outlier to figure
   scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
   scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
-  annotate("text", x = 8, y = 0.5, label = "P = 0.387", col = "grey30", size = 3) +
+  annotate("text", x = 7.5, y = 0.55, label = "P = 0.054", col = "grey30", size = 3) +
   ggtitle("C") +
-  geom_text(mapping = aes(label = Site)) +
   theme(plot.title = element_text(hjust = 0)) +
   labs(y = expression(atop("Bank erosion", "(m per year)")), x = "Crabs consumed per ha per day")
 pachy_retreat_plot
 
 # remove site J:
-pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = filter(crab_marsh15, Site != "J"), na.action = na.omit)
-summary(pachy_retreat_lm)
+# pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = filter(crab_marsh15, Site != "J"), na.action = na.omit)
+# summary(pachy_retreat_lm)
+#
+# pachy_retreat_plot <- ggplot(data = filter(crab_marsh15, Site != "J"), aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
+#   theme(legend.position = "none") +
+#   # geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
+#   geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
+#   scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
+#   scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
+#   annotate("text", x = 8, y = 0.5, label = "P = 0.054", col = "grey30", size = 3) +
+#   ggtitle("C") +
+#   geom_text(mapping = aes(label = Site)) +
+#   theme(plot.title = element_text(hjust = 0)) +
+#   labs(y = expression(atop("Bank erosion", "(m per year)")), x = "Crabs consumed per ha per day")
+# pachy_retreat_plot
 
-pachy_retreat_plot <- ggplot(data = filter(crab_marsh15, Site != "J"), aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
-  theme(legend.position = "none") +
-  # geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
-  geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
-  scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
-  scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
-  annotate("text", x = 8, y = 0.5, label = "P = 0.054", col = "grey30", size = 3) +
-  ggtitle("C") +
-  geom_text(mapping = aes(label = Site)) +
-  theme(plot.title = element_text(hjust = 0)) +
-  labs(y = expression(atop("Bank erosion", "(m per year)")), x = "Crabs consumed per ha per day")
-pachy_retreat_plot
+# remove site J + G:
+# pachy_retreat_lm <- lm(bank_retreat_2013_2015_m_yr ~ usgs_pachy_eaten_ha_day, data = filter(crab_marsh15, !Site %in% c("J", "G")), na.action = na.omit)
+# summary(pachy_retreat_lm)
+#
+# pachy_retreat_plot <- ggplot(data = filter(crab_marsh15, !Site %in% c("J", "G")), aes(x = (usgs_pachy_eaten_ha_day), y = bank_retreat_2013_2015_m_yr)) +
+#   theme(legend.position = "none") +
+#   # geom_point(alpha = 0.5, position = position_jitter(w = 0.02, h = 0)) +
+#   geom_smooth(method = "glm", formula = y ~ x, se = TRUE, colour = "black", alpha = 0.3, method.args = list(family = gaussian(link = "identity"))) +
+#   scale_x_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .03))) +
+#   scale_y_continuous(limits = c(NA, NA), expand = expansion(mult = c(0.01, .04))) +
+#   annotate("text", x = 8, y = 0.5, label = "P = 0.054", col = "grey30", size = 3) +
+#   ggtitle("C") +
+#   geom_text(mapping = aes(label = Site)) +
+#   theme(plot.title = element_text(hjust = 0)) +
+#   labs(y = expression(atop("Bank erosion", "(m per year)")), x = "Crabs consumed per ha per day")
+# pachy_retreat_plot
 
 # Comparison of marsh biomass and Pachygrapsus consumed per day,
 # GLM model using log tranformation
@@ -171,4 +188,5 @@ cowplot::plot_grid(
   ncol = 1, nrow = 3, align = "v"
 ) + theme(plot.margin = margin(0, 3, 0, 0))
 ggsave("figs/Spatial_Figure.pdf", width = 3.25, height = 6.5)
+ggsave("figs/Spatial_Figure.png", width = 3.25, height = 6.5)
 
