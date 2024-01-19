@@ -109,7 +109,7 @@ summary(burrow_lme)
 
 # AIC(burrow_glm, burrow_glm_nb1, burrow_glm_p, burrow_glm_qp, burrow_glm_gaus)
 # summary(burrow_glm_gaus)
-# non Significant Otter effect, P = 0.04789
+# non Significant Otter effect, P = 0.0164
 # decrease in crab burrows with sea otters present
 
 # r_burrow_glm <- DHARMa::simulateResiduals(burrow_glm_gaus)
